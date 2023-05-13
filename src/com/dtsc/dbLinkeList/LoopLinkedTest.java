@@ -35,11 +35,14 @@ public class LoopLinkedTest {
         int indexOf = table.indexOf(3);
         System.out.println("indexOf = " + indexOf);
 
-        Integer remove = table.remove(3);
+/*        Integer remove = table.remove(3);
         System.out.println("remove = " + remove);
         Integer remove1 = table.remove(5);
-        System.out.println("remove1 = " + remove1);
+        System.out.println("remove1 = " + remove1);*/
 
+        System.out.println("table = " + table);
+
+       table.forEach(System.out::println);
 
     }
 }

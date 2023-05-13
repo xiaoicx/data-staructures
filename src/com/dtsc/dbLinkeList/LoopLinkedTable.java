@@ -422,7 +422,7 @@ public class LoopLinkedTable<T> implements CustomList<T> {
             } else if (index >= length / 2) {
 
                 pointNode = tail;
-                for (int i = length - 1; i < index; i--) {
+                for (int i = length - 1; i > index; i--) {
                     pointNode = pointNode.prev;
                 }
 
@@ -443,9 +443,54 @@ public class LoopLinkedTable<T> implements CustomList<T> {
     @Override
     public T set(int index, T ele) {
 
+        if (index < 0 || index > length) {
+            throw new IndexOutOfBoundsException("index out of range!");
+        }
 
+        if (Objects.isNull(ele)) {
+            throw new IllegalArgumentException("ele is null");
+        }
 
-        return null;
+        T tempEle = null;
+
+        //头结点
+        if (index == 0) {
+            tempEle = head.ele;
+            head.ele = ele;
+
+            //尾节点
+        } else if (index == length - 1) {
+            tempEle = tail.ele;
+            tail.ele = ele;
+
+            //中间节点
+        } else {
+
+            Node<T> pointNode = null;
+
+            //前半部分
+            if (index <= length / 2) {
+                pointNode = head;
+                for (int i = 0; i < index - 1; i++) {
+                    pointNode = pointNode.next;//遍历到当前节点后一个
+                }
+
+                tempEle = pointNode.ele;
+                pointNode.ele = ele;
+
+                //后半部分
+            } else if (index >= length / 2) {
+
+                pointNode = tail;
+                for (int i = length - 1; i > index; i--) {
+                    pointNode = pointNode.prev;//遍历到当前节点的前一个
+                }
+
+                tempEle = pointNode.ele;
+                pointNode.ele = ele;
+            }
+        }
+        return tempEle;
     }
 
     @Override
@@ -465,8 +510,22 @@ public class LoopLinkedTable<T> implements CustomList<T> {
 
     @Override
     public void forEach(Consumer<? super T> action) {
+        if (Objects.isNull(action)) {
+            throw new NullPointerException("action is null");
+        }
 
-        CustomList.super.forEach(action);
+        Node currentNode = head;
+
+        for (int i = 0; i <= length - 1; i++) {
+
+            action.accept((T) currentNode.ele);
+
+            if (currentNode.next == head) {
+                break;
+            }
+
+            currentNode = currentNode.next;
+        }
     }
 
     @Override
@@ -477,7 +536,76 @@ public class LoopLinkedTable<T> implements CustomList<T> {
 
     @Override
     public Iterator<T> iterator() {
+        return new LinkedIterator();
+    }
 
-        return null;
+    private class LinkedIterator implements Iterator<T> {
+
+        private Node<T> currentNode = head;
+        private boolean flag = true;
+
+        @Override
+        public void remove() {
+            Iterator.super.remove();
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super T> action) {
+            Iterator.super.forEachRemaining(action);
+        }
+
+        /**
+         * @Description 下一个是否有元素
+         * @Since: 1.0.0
+         * @Author xiaoqi
+         * @Date 2023-05-13 11:09
+         * @param
+         * @return boolean
+         */
+        @Override
+        public boolean hasNext() {
+            if (isEmpty()) {
+                flag = false;
+            }
+            return flag;
+        }
+
+        @Override
+        public T next() {
+            T ele = currentNode.ele;
+            currentNode = currentNode.next;
+
+            if (currentNode == head) {
+                flag = false;
+            }
+
+            return ele;
+        }
+    }
+
+    /**
+     * @Description toString
+     * @Since: 1.0.0
+     * @Author xiaoqi
+     * @Date 2023-05-13 11:06
+     * @param
+     * @return String
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        if (isEmpty()) {
+            sb.append("]");
+        } else {
+            Node pointNode = head;
+            while (pointNode.next != head) {
+                sb.append(pointNode.ele);
+                sb.append(",");
+                pointNode = pointNode.next;
+            }
+            sb.append(tail.ele + "]");
+        }
+        return sb.toString();
     }
 }
